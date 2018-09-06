@@ -1,0 +1,70 @@
+#
+# MVP to run cran-mirror in kubernetes
+#
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cran-mirror-deployment
+  labels:
+    app: cran-mirror
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: cran-mirror
+  template:
+    metadata:
+      labels:
+        app: cran-mirror
+    spec:
+      containers:
+      - name: nginx
+        image: peterableda/nginx-ssl-proxy
+        env:
+        - name: ENABLE_SSL
+          value: "true"
+        - name: TARGET_SERVICE
+          value: "localhost:80"
+        volumeMounts:
+          - name: ssl-keys
+            readOnly: true
+            mountPath: /etc/secrets
+        ports:
+        - containerPort: 80
+        - containerPort: 443
+      - name: cran-mirror
+        image: bnosac/cran-mirror:latest
+        ports:
+        - containerPort: 80
+        volumeMounts:
+        - name: cran-packages
+          mountPath: /var/www/html
+      volumes:
+      - name: cran-packages
+        hostPath:
+          # Path on the hosts where the packages are stored
+          path: /var/cran
+      - name: ssl-keys
+        secret:
+          # Kubernetes secret with dhparam, proxycert, and proxykey
+          secretName: cran-mirror-ssl-secret
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: cran-mirror-service
+spec:
+  selector:
+    app: cran-mirror
+  type: NodePort
+  ports:
+  - name: http
+    port: 80
+    targetPort: 80
+    # Port where the cran-mirror will be reachable
+    nodePort: 30046
+    protocol: TCP
+
+
+
