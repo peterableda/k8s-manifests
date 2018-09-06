@@ -31,7 +31,6 @@ spec:
             readOnly: true
             mountPath: /etc/secrets
         ports:
-        - containerPort: 80
         - containerPort: 443
       - name: cran-mirror
         image: bnosac/cran-mirror:latest
@@ -59,12 +58,9 @@ spec:
     app: cran-mirror
   type: NodePort
   ports:
-  - name: http
-    port: 80
-    targetPort: 80
+  - name: https
+    port: 443
+    targetPort: 443
     # Port where the cran-mirror will be reachable
     nodePort: 30046
     protocol: TCP
-
-
-
