@@ -25,7 +25,7 @@ spec:
         - name: ENABLE_SSL
           value: "true"
         - name: TARGET_SERVICE
-          value: "localhost:80"
+          value: "localhost:8080"
         volumeMounts:
           - name: ssl-keys
             readOnly: true
@@ -35,7 +35,7 @@ spec:
       - name: cran-mirror
         image: bnosac/cran-mirror:latest
         ports:
-        - containerPort: 80
+        - containerPort: 8080
         volumeMounts:
         - name: cran-packages
           mountPath: /var/www/html
