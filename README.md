@@ -17,7 +17,8 @@ wget -P /var/pypi/simple/ https://files.pythonhosted.org/packages/b4/62/79a5aa98
 #### Start an unsecure pypiserver
 Create a K8s deployment and a NodePort service for the pypiserver
 ```
-kubectl apply -f pypiserver-manifest.yaml
+kubectl apply -f pypiserver-deployment.yaml
+kubectl apply -f pypiserver-nodeport-service.yaml
 ```
 
 You can open the http://ip:30036/ url to access the pypiserever UI.
@@ -25,14 +26,21 @@ You can open the http://ip:30036/ url to access the pypiserever UI.
 #### Start an secure pypiserver
 Generate a new key, certificate and dhparam for your TLS proxy and create a K8s secret from it:
 ```
-kubectl create secret generic pypiserver-ssl-secret --from-file=proxykey=cdsw-gw.key --from-file=proxycert=cdsw-gw.crt --from-file=dhparam=dhparam.pem
+kubectl create secret generic pypiserver-ssl-secret --from-file=proxykey=keyfile --from-file=proxycert=crtfilr --from-file=dhparam=dhparamfile
 ```
 
 Create a K8s deployment and a NodePort service for the pypiserver
 ```
-kubectl apply -f pypiserver-tls-manifest.yaml
+kubectl apply -f pypiserver-tls-deployment.yaml
 ```
 
 You can open the https://ip:30038/ url to access the pypiserever UI.
 
 **Note**: As an MVP I deploy a sidecar [proxy](https://github.com/peterableda/nginx-ssl-proxy) container responsible for the TLS termination.
+
+#### Start pypiserver and do TLS termination on the Ingress level
+Create a K8s deployment and a ClusterIP service with Ingress rule configured for the pypiserver
+```
+kubectl apply -f pypiserver-deployment.yaml
+kubectl apply -f pypiserver-ingress-service.yaml
+```

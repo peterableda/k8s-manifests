@@ -1,0 +1,27 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: cran-service
+  namespace: default
+spec:
+  selector:
+    app: cran-mirror
+  ports:
+  - port: 8881
+    targetPort: 80
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: cran-ingress
+  namespace: default
+spec:
+  rules:
+  - host: cran.mydomain.com
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: cran-service
+          servicePort: 8881

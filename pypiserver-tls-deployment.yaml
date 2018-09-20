@@ -1,22 +1,19 @@
-#
-# MVP to run cran-mirror in kubernetes
-#
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: cran-mirror-deployment
+  name: pypiserver-deployment
   labels:
-    app: cran-mirror
+    app: pypiserver
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: cran-mirror
+      app: pypiserver
   template:
     metadata:
       labels:
-        app: cran-mirror
+        app: pypiserver
     spec:
       containers:
       - name: nginx
@@ -27,40 +24,41 @@ spec:
         - name: TARGET_SERVICE
           value: "localhost:8080"
         volumeMounts:
-          - name: ssl-keys
+          - name: ssl
             readOnly: true
             mountPath: /etc/secrets
         ports:
+        - containerPort: 80
         - containerPort: 443
-      - name: cran-mirror
-        image: bnosac/cran-mirror:latest
+      - name: pypiserver
+        image: pypiserver/pypiserver:latest
         ports:
         - containerPort: 8080
         volumeMounts:
-        - name: cran-packages
-          mountPath: /var/www/html
+        - name: pypi-packages
+          mountPath: /data/packages
       volumes:
-      - name: cran-packages
+      - name: pypi-packages
         hostPath:
           # Path on the hosts where the packages are stored
-          path: /var/cran
-      - name: ssl-keys
+          path: /var/pypi
+      - name: ssl
         secret:
           # Kubernetes secret with dhparam, proxycert, and proxykey
-          secretName: cran-mirror-ssl-secret
+          secretName: pypiserver-ssl-secret
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: cran-mirror-service
+  name: pypiserver-service
 spec:
   selector:
-    app: cran-mirror
+    app: pypiserver
   type: NodePort
   ports:
   - name: https
     port: 443
     targetPort: 443
-    # Port where the cran-mirror will be reachable
-    nodePort: 30046
+    # Port where the pypiserver will be reachable
+    nodePort: 30038
     protocol: TCP
