@@ -1,0 +1,27 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: pypiserver-service
+  namespace: default
+spec:
+  selector:
+    app: pypiserver
+  ports:
+  - port: 8880
+    targetPort: 8080
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: pypiserver-ingress
+  namespace: default
+spec:
+  rules:
+  - host: pypi.mydomain.com
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: pypiserver-service
+          servicePort: 8880

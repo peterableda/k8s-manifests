@@ -1,0 +1,16 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: cran-mirror-service
+spec:
+  selector:
+    app: cran-mirror
+  type: NodePort
+  ports:
+  - name: http
+    port: 80
+    targetPort: 80
+    # Port where the cran-mirror will be reachable
+    nodePort: 30046
+    protocol: TCP

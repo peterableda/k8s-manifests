@@ -1,6 +1,3 @@
-#
-# MVP to run secure pypiserver in kubernetes
-#
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -27,7 +24,7 @@ spec:
         - name: TARGET_SERVICE
           value: "localhost:8080"
         volumeMounts:
-          - name: ssl-keys
+          - name: ssl
             readOnly: true
             mountPath: /etc/secrets
         ports:
@@ -45,7 +42,7 @@ spec:
         hostPath:
           # Path on the hosts where the packages are stored
           path: /var/pypi
-      - name: ssl-keys
+      - name: ssl
         secret:
           # Kubernetes secret with dhparam, proxycert, and proxykey
           secretName: pypiserver-ssl-secret

@@ -1,0 +1,37 @@
+#
+# MVP to run cran-mirror in kubernetes
+#
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cran-mirror-deployment
+  labels:
+    app: cran-mirror
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: cran-mirror
+  template:
+    metadata:
+      labels:
+        app: cran-mirror
+    spec:
+      containers:
+      - name: cran-mirror
+        image: bnosac/cran-mirror:latest
+        ports:
+        - containerPort: 80
+        volumeMounts:
+        - name: cran-packages
+          mountPath: /var/www/html
+      volumes:
+      - name: cran-packages
+        hostPath:
+          # Path on the hosts where the packages are stored
+          path: /var/cran
+
+
+
+

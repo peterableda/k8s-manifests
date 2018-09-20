@@ -1,6 +1,3 @@
-#
-# MVP to run pypiserver in kubernetes
-#
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -31,19 +28,3 @@ spec:
         hostPath:
           # Path on the hosts where the packages are stored
           path: /var/pypi
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: pypiserver-service
-spec:
-  selector:
-    app: pypiserver
-  type: NodePort
-  ports:
-  - name: http
-    port: 8080
-    targetPort: 8080
-    # Port where the pypiserver will be reachable
-    nodePort: 30036
-    protocol: TCP
